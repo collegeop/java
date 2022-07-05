@@ -1,0 +1,34 @@
+const express=require("express")
+const app=express()
+const path = require('path');
+const mc=require("mongodb").MongoClient;
+
+const conn_url="mongodb://127.0.0.1:27017/hh"
+
+app.get("/",(req,resp)=>{
+    resp.sendFile((path.join(__dirname+'/index.html')));
+})
+
+app.get("/insert",(req,resp)=>{
+    console.log(req.query);
+    mc.connect(conn_url, function (err, db) {
+        if (err) {
+          console.log('Unable to connect ,Error:', err);
+        } else {
+          console.log('Connection established');
+            
+          db.collection('student', function (err, collection) {
+            collection.insert(req.query);
+          });
+          
+          //Close connection
+          db.close();
+          resp.send(req.query);
+        }
+    });
+});
+
+
+app.listen(5000,()=>{
+    console.log("Started at port 5000");
+});
